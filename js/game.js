@@ -1128,6 +1128,7 @@
   // ── Rendering ──────────────────────────────────────────────
   function render() {
     ctx.clearRect(0, 0, dw, dh);
+    if (!terrainCanvas) return;
 
     ctx.save();
     ctx.scale(scale, scale);
