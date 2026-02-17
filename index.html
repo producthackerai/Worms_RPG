@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>WORMS!</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- MENU SCREEN -->
+  <div id="menuScreen" class="screen">
+    <div class="menu-content">
+      <h1 class="game-title">WORMS!</h1>
+      <p class="subtitle">Artillery Warfare</p>
+      <div class="menu-buttons">
+        <button id="btn2Player" class="menu-btn">2 Players</button>
+        <button id="btnVsCPU" class="menu-btn">vs Computer</button>
+      </div>
+      <p class="instructions">Drag from your worm to aim &amp; set power. Tap arrows to move.</p>
+    </div>
+  </div>
+
+  <!-- GAME HUD -->
+  <div id="gameHUD" class="hidden">
+    <!-- Top bar -->
+    <div id="topBar">
+      <div id="windDisplay">
+        <span id="windLabel">WIND</span>
+        <div id="windBar">
+          <div id="windIndicator"></div>
+        </div>
+      </div>
+      <div id="turnInfo">
+        <span id="teamName">Team 1</span>
+        <span id="turnTimer"></span>
+      </div>
+    </div>
+
+    <!-- Team health bars -->
+    <div id="teamHealth">
+      <div class="team-hp" id="team1HP">
+        <span class="team-label" style="color:#ff4444">RED</span>
+        <div class="hp-bar"><div class="hp-fill" id="team1Fill"></div></div>
+      </div>
+      <div class="team-hp" id="team2HP">
+        <span class="team-label" style="color:#4488ff">BLU</span>
+        <div class="hp-bar"><div class="hp-fill" id="team2Fill"></div></div>
+      </div>
+    </div>
+
+    <!-- Movement controls -->
+    <div id="moveControls">
+      <button id="btnLeft" class="move-btn">&larr;</button>
+      <button id="btnJump" class="move-btn">JUMP</button>
+      <button id="btnRight" class="move-btn">&rarr;</button>
+    </div>
+
+    <!-- Weapon bar -->
+    <div id="weaponBar">
+      <button class="weapon-btn selected" data-weapon="bazooka">
+        <span class="weapon-icon">&#128640;</span>
+        <span class="weapon-name">Bazooka</span>
+      </button>
+      <button class="weapon-btn" data-weapon="grenade">
+        <span class="weapon-icon">&#128163;</span>
+        <span class="weapon-name">Grenade</span>
+      </button>
+      <button class="weapon-btn" data-weapon="shotgun">
+        <span class="weapon-icon">&#128299;</span>
+        <span class="weapon-name">Shotgun</span>
+      </button>
+      <button class="weapon-btn" data-weapon="holyGrenade">
+        <span class="weapon-icon">&#9764;&#65039;</span>
+        <span class="weapon-name">Holy Nade</span>
+      </button>
+      <button class="weapon-btn" data-weapon="bananaBomb">
+        <span class="weapon-icon">&#127820;</span>
+        <span class="weapon-name">Banana</span>
+      </button>
+      <button class="weapon-btn" data-weapon="airstrike">
+        <span class="weapon-icon">&#9992;&#65039;</span>
+        <span class="weapon-name">Airstrike</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- TURN BANNER -->
+  <div id="turnBanner" class="hidden">
+    <span id="bannerText">Team 1's Turn!</span>
+  </div>
+
+  <!-- GAME OVER SCREEN -->
+  <div id="gameOverScreen" class="screen hidden">
+    <div class="menu-content">
+      <h1 id="winnerText" class="game-title">Team 1 Wins!</h1>
+      <div class="menu-buttons">
+        <button id="btnPlayAgain" class="menu-btn">Play Again</button>
+        <button id="btnBackToMenu" class="menu-btn">Main Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/game.js"></script>
+</body>
+</html>
