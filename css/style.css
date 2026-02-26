@@ -281,10 +281,10 @@ canvas {
   align-items: center;
   gap: 2px;
   padding: 6px 10px;
-  border: 2px solid transparent;
+  border: 2px solid rgba(255,255,255,0.2);
   border-radius: 10px;
-  background: rgba(255,255,255,0.08);
-  color: #ccc;
+  background: rgba(0,0,0,0.55);
+  color: #eee;
   cursor: pointer;
   transition: all 0.15s;
   min-width: 56px;
@@ -292,7 +292,7 @@ canvas {
 
 .weapon-btn.selected {
   border-color: #ffdd57;
-  background: rgba(255,221,87,0.15);
+  background: rgba(255,221,87,0.25);
   color: #fff;
 }
 
@@ -301,8 +301,9 @@ canvas {
 }
 
 .weapon-icon {
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   line-height: 1;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
 }
 
 .weapon-name {
@@ -345,6 +346,128 @@ canvas {
 #gameOverScreen {
   background: rgba(0,0,0,0.8);
   backdrop-filter: blur(8px);
+}
+
+/* Help button */
+#helpBtn {
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+  z-index: 60;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.3);
+  background: rgba(0,0,0,0.6);
+  color: #ffdd57;
+  font-size: 1.2rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  transition: all 0.15s;
+}
+
+#helpBtn:hover, #helpBtn:active {
+  background: rgba(255,221,87,0.2);
+  border-color: #ffdd57;
+  transform: scale(1.1);
+}
+
+/* Help modal */
+#helpModal {
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(10px);
+  z-index: 200;
+}
+
+.help-content {
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 480px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+.help-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  color: #aaa;
+  font-size: 1.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.help-close:hover {
+  background: rgba(255,68,68,0.3);
+  color: #ff4444;
+}
+
+.help-title {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #ffdd57;
+  margin-bottom: 1.2rem;
+  text-shadow: 0 2px 8px rgba(255,221,87,0.3);
+}
+
+.help-section {
+  margin-bottom: 1.2rem;
+}
+
+.help-section h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffdd57;
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.help-section p {
+  font-size: 0.85rem;
+  color: #ccc;
+  line-height: 1.5;
+  margin-bottom: 0.3rem;
+}
+
+.help-section p strong {
+  color: #fff;
+}
+
+.help-footer {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  text-align: center;
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.help-footer a {
+  color: #ffdd57;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.help-footer a:hover {
+  text-decoration: underline;
 }
 
 /* Landscape nudge for very small screens */

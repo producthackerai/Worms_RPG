@@ -7,6 +7,14 @@
   <meta name="mobile-web-app-capable" content="yes">
   <title>WORMS!</title>
   <link rel="stylesheet" href="css/style.css">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XP7GSDLJQV"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XP7GSDLJQV');
+  </script>
 </head>
 <body>
   <canvas id="gameCanvas"></canvas>
@@ -100,6 +108,48 @@
       <div class="menu-buttons">
         <button id="btnPlayAgain" class="menu-btn">Play Again</button>
         <button id="btnBackToMenu" class="menu-btn">Main Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HELP BUTTON -->
+  <button id="helpBtn" onclick="document.getElementById('helpModal').classList.remove('hidden')">?</button>
+
+  <!-- HELP MODAL -->
+  <div id="helpModal" class="screen hidden" onclick="if(event.target===this)this.classList.add('hidden')">
+    <div class="help-content">
+      <button class="help-close" onclick="document.getElementById('helpModal').classList.add('hidden')">&times;</button>
+      <h2 class="help-title">How to Play</h2>
+      <div class="help-section">
+        <h3>Goal</h3>
+        <p>Destroy all enemy worms before they destroy yours! Each team takes turns firing weapons.</p>
+      </div>
+      <div class="help-section">
+        <h3>Controls</h3>
+        <p><strong>Move:</strong> Tap the &larr; &rarr; arrows to walk your worm left/right.</p>
+        <p><strong>Jump:</strong> Tap JUMP to hop over obstacles. Combine with a direction to jump further.</p>
+        <p><strong>Aim &amp; Fire:</strong> Drag from your worm — the direction and length of the drag sets your aim and power. Release to fire!</p>
+        <p><strong>Airstrike:</strong> Tap anywhere on the map to call in an airstrike at that location.</p>
+      </div>
+      <div class="help-section">
+        <h3>Weapons</h3>
+        <p>&#128640; <strong>Bazooka</strong> — Reliable rocket. Good range and damage.</p>
+        <p>&#128163; <strong>Grenade</strong> — Bounces before exploding. Tricky but powerful.</p>
+        <p>&#128299; <strong>Shotgun</strong> — Short range, high damage. Get close!</p>
+        <p>&#9764;&#65039; <strong>Holy Grenade</strong> — Massive blast radius. Handle with prayer.</p>
+        <p>&#127820; <strong>Banana Bomb</strong> — Splits into cluster bombs on impact.</p>
+        <p>&#9992;&#65039; <strong>Airstrike</strong> — Bombs rain from above. Tap the target location.</p>
+      </div>
+      <div class="help-section">
+        <h3>Tips</h3>
+        <p>&#127754; Watch the wind — it affects projectile flight!</p>
+        <p>&#128168; Explosions destroy terrain — use this to drop enemies into the water.</p>
+        <p>&#9200; You have 30 seconds per turn. If time runs out, your turn ends.</p>
+        <p>&#128128; Falling from heights causes damage. Water is instant death!</p>
+      </div>
+      <div class="help-footer">
+        <span>By</span>
+        <a href="https://producthacker.ai" target="_blank" rel="noopener noreferrer">Product Hacker AI</a>
       </div>
     </div>
   </div>

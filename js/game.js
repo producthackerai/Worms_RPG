@@ -1048,9 +1048,10 @@
       document.getElementById('turnTimer').textContent = turnTimer;
       if (turnTimer <= 0) {
         clearInterval(turnTimerInterval);
-        if (gameState === 'playerMove') {
+        if (gameState === 'playerMove' || gameState === 'aiming') {
           endTurn();
         }
+        // if firing/settling, the update() loop will handle the transition
       }
     }, 1000);
   }
@@ -1058,22 +1059,18 @@
   function endTurn() {
     clearInterval(turnTimerInterval);
     stopMove();
-    gameState = 'settling';
 
-    // wait for everything to settle then next turn
-    const settleCheck = setInterval(() => {
-      if (allSettled()) {
-        clearInterval(settleCheck);
-
-        if (checkGameOver()) return;
-
-        // advance to next team's worm
-        currentWormIdx[currentTeam] = (currentWormIdx[currentTeam] + 1) % teams[currentTeam].length;
-        currentTeam = 1 - currentTeam;
-
-        setTimeout(() => startTurn(), 500);
-      }
-    }, 100);
+    if (!hasFired && allSettled()) {
+      // timer expired with no shot — nothing to settle, advance immediately
+      if (checkGameOver()) return;
+      currentWormIdx[currentTeam] = (currentWormIdx[currentTeam] + 1) % teams[currentTeam].length;
+      currentTeam = 1 - currentTeam;
+      gameState = 'turnStart';
+      setTimeout(() => startTurn(), 300);
+    } else {
+      // shot was fired or physics still active — let update() loop handle settling
+      gameState = 'settling';
+    }
   }
 
   function checkGameOver() {
@@ -1440,7 +1437,7 @@
       if (!checkGameOver()) {
         currentWormIdx[currentTeam] = (currentWormIdx[currentTeam] + 1) % teams[currentTeam].length;
         currentTeam = 1 - currentTeam;
-        setTimeout(() => startTurn(), 600);
+        setTimeout(() => startTurn(), 500);
         gameState = 'turnStart'; // prevent re-entry
       }
     }
