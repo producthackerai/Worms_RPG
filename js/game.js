@@ -47,11 +47,190 @@
     airstrike: {
       name: 'Airstrike', blastRadius: 22, damage: 35,
       missiles: 5, type: 'airstrike'
+    },
+    dynamite: {
+      name: 'Dynamite', blastRadius: 55, damage: 75,
+      speed: 0, affectedByWind: false, bounces: 0, fuse: 3000,
+      cluster: 0, type: 'placement'
+    },
+    sniper: {
+      name: 'Sniper', blastRadius: 8, damage: 50,
+      speed: 25, affectedByWind: false, bounces: 0, fuse: 0,
+      cluster: 0, type: 'projectile'
     }
+  };
+
+  const TERRAINS = {
+    greenHills: {
+      name: 'Green Hills',
+      generate(heights) {
+        const baseY = WORLD_H * 0.55;
+        for (let x = 0; x < WORLD_W; x++) {
+          heights[x] = baseY
+            + Math.sin(x * 0.003) * 80
+            + Math.sin(x * 0.008 + 1.3) * 45
+            + Math.sin(x * 0.02 + 4.1) * 20
+            + Math.sin(x * 0.05 + 2.7) * 8;
+        }
+      },
+      grass1: [60, 179, 50],
+      grass2: [50, 155, 40],
+      dirtBase: [139, 90, 43],
+      dirtDarken: [30, 25, 15],
+      sky: [
+        { stop: 0, color: '#1a0a2e' },
+        { stop: 0.3, color: '#16213e' },
+        { stop: 0.6, color: '#0a3d62' },
+        { stop: 1, color: '#1e5f74' }
+      ],
+      water: [
+        { stop: 0, color: 'rgba(30,100,180,0.7)' },
+        { stop: 1, color: 'rgba(10,40,80,0.9)' }
+      ],
+      waterWave: 'rgba(100,180,255,0.3)',
+      dirtParticle: '#8B5E3C'
+    },
+    volcanicPeaks: {
+      name: 'Volcanic Peaks',
+      generate(heights) {
+        const baseY = WORLD_H * 0.50;
+        for (let x = 0; x < WORLD_W; x++) {
+          heights[x] = baseY
+            + Math.sin(x * 0.004) * 110
+            + Math.sin(x * 0.012 + 0.7) * 55
+            + Math.sin(x * 0.035 + 2.1) * 30
+            + Math.sin(x * 0.08 + 5.3) * 15
+            + Math.abs(Math.sin(x * 0.006 + 1.0)) * -60;
+        }
+      },
+      grass1: [90, 85, 80],
+      grass2: [70, 65, 60],
+      dirtBase: [60, 35, 30],
+      dirtDarken: [20, 10, 5],
+      sky: [
+        { stop: 0, color: '#1a0505' },
+        { stop: 0.3, color: '#3d1010' },
+        { stop: 0.6, color: '#5c1a0a' },
+        { stop: 1, color: '#7a3015' }
+      ],
+      water: [
+        { stop: 0, color: 'rgba(220,100,20,0.7)' },
+        { stop: 1, color: 'rgba(180,50,10,0.9)' }
+      ],
+      waterWave: 'rgba(255,150,50,0.4)',
+      dirtParticle: '#4a2a20'
+    },
+    frozenValleys: {
+      name: 'Frozen Valleys',
+      generate(heights) {
+        const baseY = WORLD_H * 0.45;
+        for (let x = 0; x < WORLD_W; x++) {
+          const nx = x / WORLD_W;
+          heights[x] = baseY
+            + Math.cos(nx * Math.PI * 3) * 90
+            + Math.sin(x * 0.005 + 2.0) * 60
+            + Math.sin(x * 0.015 + 0.5) * 25
+            + Math.sin(x * 0.04 + 3.8) * 12;
+        }
+      },
+      grass1: [220, 235, 250],
+      grass2: [190, 210, 235],
+      dirtBase: [160, 180, 200],
+      dirtDarken: [20, 20, 25],
+      sky: [
+        { stop: 0, color: '#c8d8e8' },
+        { stop: 0.3, color: '#a0b8cc' },
+        { stop: 0.6, color: '#7090a8' },
+        { stop: 1, color: '#506878' }
+      ],
+      water: [
+        { stop: 0, color: 'rgba(20,80,90,0.7)' },
+        { stop: 1, color: 'rgba(10,50,60,0.9)' }
+      ],
+      waterWave: 'rgba(100,200,210,0.3)',
+      dirtParticle: '#8aa8c0'
+    },
+    alienFloaters: {
+      name: 'Alien Floaters',
+      generate(heights) {
+        const baseY = WORLD_H * 0.60;
+        for (let x = 0; x < WORLD_W; x++) {
+          heights[x] = baseY
+            + Math.sin(x * 0.004) * 60
+            + Math.sin(x * 0.01 + 1.5) * 35
+            + Math.sin(x * 0.025 + 3.0) * 18;
+        }
+      },
+      postProcess(terrainData) {
+        // carve out gaps to create floating islands (only carve upper portion)
+        const gapCount = 4 + Math.floor(Math.random() * 3);
+        for (let i = 0; i < gapCount; i++) {
+          const gx = 200 + Math.random() * (WORLD_W - 400);
+          const gw = 50 + Math.random() * 70;
+          for (let x = Math.max(0, Math.floor(gx - gw / 2)); x < Math.min(WORLD_W, Math.floor(gx + gw / 2)); x++) {
+            for (let y = 0; y < WATER_Y - 60; y++) {
+              terrainData[y * WORLD_W + x] = 0;
+            }
+          }
+        }
+        // add floating platforms (generous size for gameplay)
+        const platCount = 6 + Math.floor(Math.random() * 4);
+        for (let i = 0; i < platCount; i++) {
+          const px = 100 + Math.random() * (WORLD_W - 200);
+          const py = 180 + Math.random() * 280;
+          const pw = 70 + Math.random() * 100;
+          const ph = 15 + Math.random() * 12;
+          for (let x = Math.max(0, Math.floor(px - pw / 2)); x < Math.min(WORLD_W, Math.floor(px + pw / 2)); x++) {
+            for (let y = Math.max(0, Math.floor(py)); y < Math.min(WORLD_H, Math.floor(py + ph)); y++) {
+              terrainData[y * WORLD_W + x] = 1;
+            }
+          }
+        }
+      },
+      grass1: [180, 50, 220],
+      grass2: [150, 40, 190],
+      dirtBase: [80, 20, 100],
+      dirtDarken: [15, 5, 20],
+      sky: [
+        { stop: 0, color: '#050010' },
+        { stop: 0.3, color: '#100025' },
+        { stop: 0.6, color: '#1a0040' },
+        { stop: 1, color: '#200055' }
+      ],
+      water: [
+        { stop: 0, color: 'rgba(50,220,50,0.6)' },
+        { stop: 1, color: 'rgba(20,150,20,0.9)' }
+      ],
+      waterWave: 'rgba(100,255,100,0.4)',
+      dirtParticle: '#6a1a80'
+    }
+  };
+
+  const DEFAULT_AMMO = {
+    bazooka: Infinity,
+    grenade: Infinity,
+    shotgun: Infinity,
+    sniper: 3,
+    dynamite: 2,
+    holyGrenade: 1,
+    bananaBomb: 2,
+    airstrike: 1
   };
 
   const TEAM_COLORS = ['#ff4444', '#4488ff'];
   const TEAM_NAMES  = ['RED', 'BLU'];
+
+  const WORM_NAMES = [
+    'Squirmy', 'Wiggles', 'Sir Slithers', 'Noodle', 'Lumpy',
+    'Dirt Nap', 'The Worm', 'Crawly', 'Sgt. Soil', 'Big Dig',
+    'Mudflap', 'Annelid Andy', 'Slick', 'Compost', 'Wormsworth',
+    'Night Crawler', 'Bait', 'Topsoil', 'El Wormo', 'Squish',
+    'Professor Squirm', 'Captain Hook(ed)', 'Mulch', 'Boggle',
+    'Spaghetti', 'Ripley', 'Gummy', 'Inchworm', 'Pudge',
+    'Slinky', 'Nibblet', 'Grub Hub', 'Early Bird Snack',
+    'Sir Digs-a-Lot', 'Mr. Moist', 'Tunnel Vision', 'Loam Ranger',
+    'Humus Maximus', 'Soily McSoilface', 'Worm Supreme'
+  ];
 
   // ── State ──────────────────────────────────────────────────
   const canvas = document.getElementById('gameCanvas');
@@ -76,15 +255,21 @@
 
   let selectedWeapon = 'bazooka';
   let wind = 0;
+  let selectedTerrain = 'greenHills';
+  let weaponAmmo = [{}, {}]; // per-team ammo counts
+  let paused = false;
 
-  let gameState = 'menu';  // menu | turnStart | playerMove | aiming | firing | settling | gameOver
+  let gameState = 'menu';  // menu | terrainSelect | turnStart | playerMove | aiming | firing | settling | gameOver
   let turnTimer = TURN_TIME;
   let turnTimerInterval = null;
+  let turnTimerRemaining = 0; // saved timer for pause
   let moveStepsLeft = 0;
   let hasFired = false;
 
   let vsAI = false;
   let aiThinking = false;
+  let gameStartTime = 0;
+  let customTerrainConfig = null;
 
   // input
   let dragStart = null;   // {x,y} world coords
@@ -150,16 +335,11 @@
     terrainCtx = terrainCanvas.getContext('2d');
     terrainData = new Uint8Array(WORLD_W * WORLD_H);
 
-    // build heightmap with layered sine waves
+    const terrain = TERRAINS[selectedTerrain];
+
+    // build heightmap using terrain-specific generator
     const heights = new Float32Array(WORLD_W);
-    const baseY = WORLD_H * 0.55;
-    for (let x = 0; x < WORLD_W; x++) {
-      heights[x] = baseY
-        + Math.sin(x * 0.003) * 80
-        + Math.sin(x * 0.008 + 1.3) * 45
-        + Math.sin(x * 0.02 + 4.1) * 20
-        + Math.sin(x * 0.05 + 2.7) * 8;
-    }
+    terrain.generate(heights);
 
     // add some flat plateaus for worm placement
     for (let i = 0; i < 4; i++) {
@@ -171,7 +351,7 @@
       }
     }
 
-    // fill terrain data & draw
+    // fill terrain data
     for (let x = 0; x < WORLD_W; x++) {
       const surfaceY = Math.floor(heights[x]);
       for (let y = surfaceY; y < WATER_Y; y++) {
@@ -181,6 +361,11 @@
       }
     }
 
+    // terrain-specific post-processing (e.g. alien floaters)
+    if (terrain.postProcess) {
+      terrain.postProcess(terrainData);
+    }
+
     renderTerrainCanvas();
   }
 
@@ -188,6 +373,7 @@
     terrainCtx.clearRect(0, 0, WORLD_W, WORLD_H);
     const imgData = terrainCtx.createImageData(WORLD_W, WORLD_H);
     const d = imgData.data;
+    const t = TERRAINS[selectedTerrain];
 
     for (let y = 0; y < WORLD_H; y++) {
       for (let x = 0; x < WORLD_W; x++) {
@@ -195,22 +381,18 @@
         if (!terrainData[idx]) continue;
         const pi = idx * 4;
 
-        // check if this is a surface pixel (air above)
         const above = y > 0 ? terrainData[(y - 1) * WORLD_W + x] : 0;
         const above2 = y > 1 ? terrainData[(y - 2) * WORLD_W + x] : 0;
 
         if (!above) {
-          // grass top
-          d[pi] = 60; d[pi + 1] = 179; d[pi + 2] = 50; d[pi + 3] = 255;
+          d[pi] = t.grass1[0]; d[pi + 1] = t.grass1[1]; d[pi + 2] = t.grass1[2]; d[pi + 3] = 255;
         } else if (!above2) {
-          // grass second layer
-          d[pi] = 50; d[pi + 1] = 155; d[pi + 2] = 40; d[pi + 3] = 255;
+          d[pi] = t.grass2[0]; d[pi + 1] = t.grass2[1]; d[pi + 2] = t.grass2[2]; d[pi + 3] = 255;
         } else {
-          // dirt with depth gradient
           const depth = Math.min((y - 200) / 400, 1);
-          const r = Math.floor(139 - depth * 30 + (Math.random() * 8 - 4));
-          const g = Math.floor(90 - depth * 25 + (Math.random() * 6 - 3));
-          const b = Math.floor(43 - depth * 15 + (Math.random() * 4 - 2));
+          const r = Math.floor(t.dirtBase[0] - depth * t.dirtDarken[0] + (Math.random() * 8 - 4));
+          const g = Math.floor(t.dirtBase[1] - depth * t.dirtDarken[1] + (Math.random() * 6 - 3));
+          const b = Math.floor(t.dirtBase[2] - depth * t.dirtDarken[2] + (Math.random() * 4 - 2));
           d[pi] = r; d[pi + 1] = g; d[pi + 2] = b; d[pi + 3] = 255;
         }
       }
@@ -260,7 +442,8 @@
         const above = wy > 0 ? terrainData[(wy - 1) * WORLD_W + wx] : 0;
         if (!above) {
           const pi = (ly * w + lx) * 4;
-          d[pi] = 60; d[pi + 1] = 179; d[pi + 2] = 50; d[pi + 3] = 255;
+          const tc = TERRAINS[selectedTerrain].grass1;
+          d[pi] = tc[0]; d[pi + 1] = tc[1]; d[pi + 2] = tc[2]; d[pi + 3] = 255;
         }
       }
     }
@@ -282,6 +465,16 @@
   }
 
   // ── Worm ───────────────────────────────────────────────────
+  let usedNames = [];
+
+  function pickWormName() {
+    const available = WORM_NAMES.filter(n => !usedNames.includes(n));
+    const pool = available.length > 0 ? available : WORM_NAMES;
+    const name = pool[Math.floor(Math.random() * pool.length)];
+    usedNames.push(name);
+    return name;
+  }
+
   function createWorm(team, x) {
     const surfY = findSurfaceY(x);
     return {
@@ -294,7 +487,7 @@
       height: 14,
       grounded: true,
       fallStartY: 0,
-      name: TEAM_NAMES[team] + ' ' + (teams[team].length + 1)
+      name: pickWormName()
     };
   }
 
@@ -523,7 +716,7 @@
         life: 500 + Math.random() * 700,
         age: 0,
         size: 2 + Math.random() * 4,
-        color: '#8B5E3C'
+        color: TERRAINS[selectedTerrain].dirtParticle
       });
     }
   }
@@ -663,6 +856,21 @@
       w.alive = false;
       w.hp = 0;
       createExplosion(w.x, w.y, 15, 0); // death pop
+      // team-colored death particles (tombstone confetti)
+      const tc = TEAM_COLORS[w.team];
+      for (let i = 0; i < 12; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const spd = 1.5 + Math.random() * 3;
+        particles.push({
+          x: w.x, y: w.y - 5,
+          vx: Math.cos(angle) * spd,
+          vy: Math.sin(angle) * spd - 3,
+          life: 600 + Math.random() * 600,
+          age: 0,
+          size: 2 + Math.random() * 3,
+          color: tc
+        });
+      }
       floatingTexts.push({
         x: w.x, y: w.y - 30,
         text: w.name + ' died!',
@@ -700,27 +908,51 @@
 
     if (!bestTarget) { aiThinking = false; endTurn(); return; }
 
-    // choose weapon based on distance
+    // helper: check if weapon has ammo
+    const hasAmmo = (w) => weaponAmmo[me.team][w] > 0;
+
+    // choose weapon based on distance, respecting ammo
     const dist = Math.sqrt((bestTarget.x - me.x) ** 2 + (bestTarget.y - me.y) ** 2);
     let weapon;
     if (dist < 80) {
-      weapon = 'shotgun';
+      if (hasAmmo('dynamite') && Math.random() > 0.5) weapon = 'dynamite';
+      else weapon = 'shotgun';
     } else if (dist > 500) {
-      weapon = Math.random() > 0.5 ? 'airstrike' : 'bazooka';
+      const longRange = ['airstrike', 'bazooka', 'sniper'].filter(hasAmmo);
+      weapon = longRange.length ? longRange[Math.floor(Math.random() * longRange.length)] : 'bazooka';
     } else {
-      const choices = ['bazooka', 'grenade', 'bananaBomb', 'holyGrenade'];
-      weapon = choices[Math.floor(Math.random() * choices.length)];
+      const choices = ['bazooka', 'grenade', 'bananaBomb', 'holyGrenade', 'sniper'].filter(hasAmmo);
+      weapon = choices.length ? choices[Math.floor(Math.random() * choices.length)] : 'bazooka';
     }
+    // fallback if no ammo for chosen
+    if (!hasAmmo(weapon)) weapon = 'bazooka';
 
     selectedWeapon = weapon;
     updateWeaponUI();
 
     // calculate aim
     setTimeout(() => {
+      const wDef = WEAPONS[weapon];
+
+      // dynamite: just drop at feet
+      if (wDef.type === 'placement') {
+        const p = createProjectile(me.x, me.y - 5, 0, 0, weapon, me.team);
+        projectiles.push(p);
+        playSound('shoot');
+        hasFired = true;
+        weaponAmmo[me.team][weapon]--;
+        updateWeaponUI();
+        aiThinking = false;
+        gameState = 'firing';
+        return;
+      }
+
       if (weapon === 'airstrike') {
         fireAirstrike(bestTarget.x + (Math.random() - 0.5) * 30, me.team);
         playSound('shoot');
         hasFired = true;
+        weaponAmmo[me.team][weapon]--;
+        updateWeaponUI();
         aiThinking = false;
         gameState = 'firing';
         return;
@@ -728,19 +960,15 @@
 
       const dx = bestTarget.x - me.x;
       const dy = bestTarget.y - me.y;
-      const w = WEAPONS[weapon];
-      const speed = w.speed;
+      const speed = wDef.speed;
 
-      // estimate angle to hit target with simple ballistic calc
       const g = GRAVITY;
       const d = Math.sqrt(dx * dx + dy * dy);
       let angle = Math.atan2(dy, dx);
 
-      // compensate for gravity (lob upward)
       const flightTime = d / speed;
       angle -= (g * flightTime * 0.5) / speed;
 
-      // add some noise (AI isn't perfect)
       angle += (Math.random() - 0.5) * 0.15;
       const powerMod = 0.85 + Math.random() * 0.3;
 
@@ -751,6 +979,8 @@
       projectiles.push(p);
       playSound('shoot');
       hasFired = true;
+      weaponAmmo[me.team][weapon]--;
+      updateWeaponUI();
       aiThinking = false;
       gameState = 'firing';
     }, 800 + Math.random() * 600);
@@ -796,19 +1026,36 @@
     const me = getActiveWorm();
     if (!me || !me.alive || gameState !== 'playerMove' || hasFired) return;
 
+    // check ammo
+    if (weaponAmmo[currentTeam][selectedWeapon] <= 0) return;
+
     const wp = screenToWorld(sx, sy);
+    const w = WEAPONS[selectedWeapon];
+
+    // dynamite: place at feet, no aiming needed
+    if (w.type === 'placement') {
+      const p = createProjectile(me.x, me.y - 5, 0, 0, selectedWeapon, me.team);
+      projectiles.push(p);
+      playSound('shoot');
+      hasFired = true;
+      weaponAmmo[currentTeam][selectedWeapon]--;
+      updateWeaponUI();
+      gameState = 'firing';
+      return;
+    }
+
     const dx = wp.x - me.x;
     const dy = wp.y - (me.y - 8);
     const dist = Math.sqrt(dx * dx + dy * dy);
 
     if (dist < 15) return; // too close, treat as tap
 
-    const w = WEAPONS[selectedWeapon];
-
     if (w.type === 'airstrike') {
       fireAirstrike(wp.x, me.team);
       playSound('shoot');
       hasFired = true;
+      weaponAmmo[currentTeam][selectedWeapon]--;
+      updateWeaponUI();
       gameState = 'firing';
       return;
     }
@@ -842,6 +1089,8 @@
 
     playSound('shoot');
     hasFired = true;
+    weaponAmmo[currentTeam][selectedWeapon]--;
+    updateWeaponUI();
     gameState = 'firing';
   }
 
@@ -950,7 +1199,9 @@
     btn.addEventListener('click', e => {
       e.stopPropagation();
       if (gameState !== 'playerMove' || hasFired) return;
-      selectedWeapon = btn.dataset.weapon;
+      const wkey = btn.dataset.weapon;
+      if (weaponAmmo[currentTeam][wkey] <= 0) return; // out of ammo
+      selectedWeapon = wkey;
       updateWeaponUI();
     });
     btn.addEventListener('touchstart', e => {
@@ -960,13 +1211,27 @@
 
   function updateWeaponUI() {
     document.querySelectorAll('.weapon-btn').forEach(b => {
-      b.classList.toggle('selected', b.dataset.weapon === selectedWeapon);
+      const wkey = b.dataset.weapon;
+      const ammo = weaponAmmo[currentTeam] ? weaponAmmo[currentTeam][wkey] : Infinity;
+      b.classList.toggle('selected', wkey === selectedWeapon);
+      b.classList.toggle('disabled', ammo <= 0);
+
+      // update ammo badge
+      let badge = b.querySelector('.ammo-badge');
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'ammo-badge';
+        b.appendChild(badge);
+      }
+      badge.textContent = ammo === Infinity ? '' : ammo <= 0 ? '0' : 'x' + ammo;
     });
   }
 
   // ── Turns ──────────────────────────────────────────────────
   function startGame(ai) {
     vsAI = ai;
+    paused = false;
+    usedNames = [];
     generateTerrain();
     placeWorms();
     currentTeam = 0;
@@ -980,8 +1245,25 @@
     hasFired = false;
     aiThinking = false;
 
+    // init ammo per team
+    weaponAmmo = [
+      Object.assign({}, DEFAULT_AMMO),
+      Object.assign({}, DEFAULT_AMMO)
+    ];
+
+    gameStartTime = Date.now();
+
+    // If a custom terrain config was pending, load it and re-place worms
+    if (customTerrainConfig) {
+      loadTerrainFromConfig(customTerrainConfig);
+      customTerrainConfig = null;
+      placeWorms();
+    }
+
     document.getElementById('menuScreen').classList.add('hidden');
+    document.getElementById('terrainScreen').classList.add('hidden');
     document.getElementById('gameOverScreen').classList.add('hidden');
+    document.getElementById('pauseMenu').classList.add('hidden');
     document.getElementById('gameHUD').classList.remove('hidden');
 
     updateWeaponUI();
@@ -1040,8 +1322,8 @@
     }, 1200);
   }
 
-  function startTurnTimer() {
-    turnTimer = TURN_TIME;
+  function startTurnTimer(fromTime) {
+    turnTimer = fromTime !== undefined ? fromTime : TURN_TIME;
     clearInterval(turnTimerInterval);
     turnTimerInterval = setInterval(() => {
       turnTimer--;
@@ -1090,6 +1372,26 @@
       text.textContent = winner + ' Wins!';
       text.style.color = winColor;
       screen.classList.remove('hidden');
+
+      // Record match result for signed-in users
+      const durationSec = Math.round((Date.now() - gameStartTime) / 1000);
+      const winnerTeamIdx = alive0 ? 0 : (alive1 ? 1 : -1);
+      const wormsLeft = winnerTeamIdx >= 0 ? teams[winnerTeamIdx].filter(i => worms[i].alive).length : 0;
+
+      if (window.wormsUser && vsAI) {
+        // Team 0 = player, Team 1 = CPU
+        const result = alive0 ? 'win' : 'loss';
+        if (typeof window.wormsRecordMatch === 'function') {
+          window.wormsRecordMatch(result, 'cpu', selectedTerrain, durationSec, wormsLeft);
+        }
+      } else if (window.wormsUser && !vsAI) {
+        // 2-player mode: record for team 0 = player 1
+        const result = alive0 ? 'win' : 'loss';
+        if (typeof window.wormsRecordMatch === 'function') {
+          window.wormsRecordMatch(result, 'human', selectedTerrain, durationSec, wormsLeft);
+        }
+      }
+
       return true;
     }
     return false;
@@ -1174,38 +1476,39 @@
     }
     ctx.globalAlpha = 1;
 
-    // aim line
-    if (isDragging && gameState === 'playerMove' && !hasFired) {
-      drawAimLine();
+    // aim line (always show for placement weapons, drag for others)
+    if (gameState === 'playerMove' && !hasFired) {
+      const w = WEAPONS[selectedWeapon];
+      if (w.type === 'placement' || isDragging) {
+        drawAimLine();
+      }
     }
 
     ctx.restore();
   }
 
   function drawSky() {
+    const t = TERRAINS[selectedTerrain];
     const grad = ctx.createLinearGradient(0, 0, 0, WORLD_H);
-    grad.addColorStop(0, '#1a0a2e');
-    grad.addColorStop(0.3, '#16213e');
-    grad.addColorStop(0.6, '#0a3d62');
-    grad.addColorStop(1, '#1e5f74');
+    for (const s of t.sky) grad.addColorStop(s.stop, s.color);
     ctx.fillStyle = grad;
     ctx.fillRect(camX, camY, dw / scale, dh / scale);
   }
 
   function drawWater() {
+    const t = TERRAINS[selectedTerrain];
     const waterGrad = ctx.createLinearGradient(0, WATER_Y, 0, WORLD_H);
-    waterGrad.addColorStop(0, 'rgba(30,100,180,0.7)');
-    waterGrad.addColorStop(1, 'rgba(10,40,80,0.9)');
+    for (const s of t.water) waterGrad.addColorStop(s.stop, s.color);
     ctx.fillStyle = waterGrad;
     ctx.fillRect(camX, WATER_Y, dw / scale, WORLD_H - WATER_Y);
 
     // animated wave
-    ctx.strokeStyle = 'rgba(100,180,255,0.3)';
+    ctx.strokeStyle = t.waterWave;
     ctx.lineWidth = 2;
     ctx.beginPath();
-    const t = Date.now() * 0.002;
+    const waveT = Date.now() * 0.002;
     for (let x = Math.floor(camX); x < camX + dw / scale; x += 4) {
-      const wy = WATER_Y + Math.sin(x * 0.03 + t) * 3;
+      const wy = WATER_Y + Math.sin(x * 0.03 + waveT) * 3;
       x === Math.floor(camX) ? ctx.moveTo(x, wy) : ctx.lineTo(x, wy);
     }
     ctx.stroke();
@@ -1214,48 +1517,222 @@
   function drawWorm(w) {
     const isActive = w === activeWorm && (gameState === 'playerMove' || gameState === 'turnStart');
     const c = TEAM_COLORS[w.team];
+    const hpPct = Math.max(0, w.hp / 100);
+    const t = Date.now();
 
-    // body
+    // idle breathing animation
+    const breathe = Math.sin(t * 0.004) * 0.8;
+    const squish = isActive ? Math.sin(t * 0.006) * 0.3 : 0;
+
+    ctx.save();
+    ctx.translate(w.x, w.y);
+
+    // ── Shadow ──
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    ctx.beginPath();
+    ctx.ellipse(0, 1, 7, 2, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // ── Tail (little nub behind body) ──
     ctx.fillStyle = c;
     ctx.beginPath();
-    ctx.ellipse(w.x, w.y - 5, w.width / 2, w.height / 2, 0, 0, Math.PI * 2);
+    ctx.ellipse(-4, -2, 3, 2.5, -0.3, 0, Math.PI * 2);
     ctx.fill();
 
-    // face
+    // ── Body (plump segmented look) ──
+    // lower body segment
+    const darkerC = w.team === 0 ? '#cc2222' : '#2266cc';
+    ctx.fillStyle = darkerC;
+    ctx.beginPath();
+    ctx.ellipse(0, -3 + breathe * 0.5, 6.5 + squish, 7 - squish, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // main body (lighter, overlapping)
+    ctx.fillStyle = c;
+    ctx.beginPath();
+    ctx.ellipse(0.5, -5 + breathe, 5.5 + squish, 6.5 - squish, 0.05, 0, Math.PI * 2);
+    ctx.fill();
+
+    // belly highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.beginPath();
+    ctx.ellipse(1, -4 + breathe, 3, 4, 0.1, 0, Math.PI * 2);
+    ctx.fill();
+
+    // ── Eyes ──
+    const eyeY = -8 + breathe;
+    const eyeSpacing = 3;
+
+    // expression based on HP
+    let eyeW = 2.5, eyeH = 2.8;
+    let pupilOx = 0.3, pupilOy = 0;
+    let browAngle = 0;
+
+    if (hpPct <= 0.25) {
+      // worried / scared — wide eyes, raised brows
+      eyeW = 3; eyeH = 3.5;
+      pupilOy = 0.5;
+      browAngle = 0.3;
+    } else if (hpPct <= 0.5) {
+      // angry — squinted, furrowed brows
+      eyeH = 2;
+      browAngle = -0.4;
+      pupilOx = 0.5;
+    }
+
+    // white of eyes
     ctx.fillStyle = '#fff';
     ctx.beginPath();
-    ctx.arc(w.x + 2, w.y - 7, 2, 0, Math.PI * 2);
+    ctx.ellipse(-eyeSpacing + 1.5, eyeY, eyeW, eyeH, 0, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = '#000';
     ctx.beginPath();
-    ctx.arc(w.x + 2.5, w.y - 7, 1, 0, Math.PI * 2);
+    ctx.ellipse(eyeSpacing + 1.5, eyeY, eyeW, eyeH, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // name & HP
-    ctx.font = 'bold 8px sans-serif';
+    // pupils (look toward nearest enemy or track mouse)
+    ctx.fillStyle = '#111';
+    ctx.beginPath();
+    ctx.arc(-eyeSpacing + 1.5 + pupilOx, eyeY + pupilOy, 1.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(eyeSpacing + 1.5 + pupilOx, eyeY + pupilOy, 1.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // pupil shine
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(-eyeSpacing + 1 + pupilOx, eyeY - 0.5 + pupilOy, 0.4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(eyeSpacing + 1 + pupilOx, eyeY - 0.5 + pupilOy, 0.4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // eyebrows (mood-dependent)
+    if (browAngle !== 0) {
+      ctx.strokeStyle = c === '#ff4444' ? '#aa0000' : '#003399';
+      ctx.lineWidth = 1.2;
+      ctx.lineCap = 'round';
+
+      ctx.beginPath();
+      ctx.save();
+      ctx.translate(-eyeSpacing + 1.5, eyeY - eyeH - 1);
+      ctx.rotate(browAngle);
+      ctx.moveTo(-2.5, 0);
+      ctx.lineTo(2.5, 0);
+      ctx.restore();
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.save();
+      ctx.translate(eyeSpacing + 1.5, eyeY - eyeH - 1);
+      ctx.rotate(-browAngle);
+      ctx.moveTo(-2.5, 0);
+      ctx.lineTo(2.5, 0);
+      ctx.restore();
+      ctx.stroke();
+    }
+
+    // ── Mouth ──
+    ctx.strokeStyle = darkerC;
+    ctx.lineWidth = 0.8;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    if (hpPct <= 0.25) {
+      // worried frown
+      ctx.arc(2, -3.5 + breathe, 2, 0.2, Math.PI - 0.2);
+    } else if (hpPct <= 0.5) {
+      // gritted teeth line
+      ctx.moveTo(0.5, -4.5 + breathe);
+      ctx.lineTo(3.5, -4.5 + breathe);
+    } else {
+      // little smile
+      ctx.arc(2, -5.5 + breathe, 2, 0.3, Math.PI - 0.3, true);
+    }
+    ctx.stroke();
+
+    // ── Team Accessory ──
+    if (w.team === 0) {
+      // Red team: bandana
+      ctx.fillStyle = '#cc0000';
+      ctx.beginPath();
+      ctx.moveTo(-5, -11 + breathe);
+      ctx.quadraticCurveTo(0, -14 + breathe, 6, -11 + breathe);
+      ctx.lineTo(5, -10 + breathe);
+      ctx.quadraticCurveTo(0, -12.5 + breathe, -4, -10 + breathe);
+      ctx.fill();
+      // bandana knot/tail
+      ctx.fillStyle = '#aa0000';
+      ctx.beginPath();
+      ctx.moveTo(-5, -10.5 + breathe);
+      ctx.lineTo(-8, -9 + breathe);
+      ctx.lineTo(-7, -11 + breathe);
+      ctx.closePath();
+      ctx.fill();
+    } else {
+      // Blue team: helmet
+      ctx.fillStyle = '#2255aa';
+      ctx.beginPath();
+      ctx.arc(1, -10.5 + breathe, 6.5, Math.PI, 0);
+      ctx.fill();
+      // helmet rim
+      ctx.fillStyle = '#1a4488';
+      ctx.fillRect(-5.5, -10.5 + breathe, 13, 2);
+      // helmet shine
+      ctx.fillStyle = 'rgba(255,255,255,0.2)';
+      ctx.beginPath();
+      ctx.ellipse(-1, -13 + breathe, 3, 1.5, -0.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.restore();
+
+    // ── Name & HP (drawn in world space, not translated) ──
+    ctx.font = 'bold 7px sans-serif';
     ctx.textAlign = 'center';
+
+    // name shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillText(w.name, w.x + 0.5, w.y - 18.5);
+    // name
     ctx.fillStyle = '#fff';
-    ctx.fillText(w.name, w.x, w.y - 18);
+    ctx.fillText(w.name, w.x, w.y - 19);
 
     // HP bar
-    const barW = 20;
-    const hpPct = Math.max(0, w.hp / 100);
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.fillRect(w.x - barW / 2, w.y - 16, barW, 3);
-    ctx.fillStyle = hpPct > 0.5 ? '#2ecc71' : hpPct > 0.25 ? '#f39c12' : '#e74c3c';
-    ctx.fillRect(w.x - barW / 2, w.y - 16, barW * hpPct, 3);
+    const barW = 22;
+    const barH = 3;
+    const barX = w.x - barW / 2;
+    const barY = w.y - 17;
+    // background
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.beginPath();
+    ctx.roundRect(barX - 1, barY - 0.5, barW + 2, barH + 1, 2);
+    ctx.fill();
+    // fill
+    const hpColor = hpPct > 0.5 ? '#2ecc71' : hpPct > 0.25 ? '#f39c12' : '#e74c3c';
+    ctx.fillStyle = hpColor;
+    ctx.beginPath();
+    ctx.roundRect(barX, barY, barW * hpPct, barH, 1.5);
+    ctx.fill();
+    // shine on hp bar
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.fillRect(barX, barY, barW * hpPct, 1);
 
-    // active indicator
+    // ── Active indicator (bouncing arrow) ──
     if (isActive) {
-      ctx.strokeStyle = '#ffdd57';
-      ctx.lineWidth = 1.5;
+      const bobY = Math.sin(t * 0.005) * 3;
+      ctx.fillStyle = '#ffdd57';
       ctx.beginPath();
-      const bobY = Math.sin(Date.now() * 0.005) * 3;
       ctx.moveTo(w.x, w.y - 28 + bobY);
       ctx.lineTo(w.x - 4, w.y - 24 + bobY);
       ctx.lineTo(w.x + 4, w.y - 24 + bobY);
       ctx.closePath();
-      ctx.stroke();
+      ctx.fill();
+
+      // glow
+      ctx.shadowColor = '#ffdd57';
+      ctx.shadowBlur = 6;
+      ctx.fill();
+      ctx.shadowBlur = 0;
     }
   }
 
@@ -1312,12 +1789,25 @@
     const me = getActiveWorm();
     if (!me) return;
 
+    const w = WEAPONS[selectedWeapon];
+
+    // placement weapons show blast radius preview
+    if (w.type === 'placement') {
+      ctx.strokeStyle = 'rgba(255,100,50,0.5)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.arc(me.x, me.y, w.blastRadius, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      return;
+    }
+
     const dx = dragCurrent.x - me.x;
     const dy = dragCurrent.y - (me.y - 8);
     const dist = Math.sqrt(dx * dx + dy * dy);
     if (dist < 10) return;
 
-    const w = WEAPONS[selectedWeapon];
     const maxDrag = 150;
     const power = Math.min(dist / maxDrag, 1) * w.speed;
     const angle = Math.atan2(dy, dx);
@@ -1385,7 +1875,7 @@
 
   // ── Update Loop ────────────────────────────────────────────
   function update(dt) {
-    if (gameState === 'menu' || gameState === 'gameOver') return;
+    if (gameState === 'menu' || gameState === 'gameOver' || gameState === 'terrainSelect' || paused) return;
 
     // update projectiles
     for (const p of projectiles) {
@@ -1453,6 +1943,7 @@
 
     update(dt);
     render();
+    if (typeof updateExposedState === 'function') updateExposedState();
   }
 
   // ── Resize ─────────────────────────────────────────────────
@@ -1474,8 +1965,26 @@
   resize();
 
   // ── Menu Buttons ───────────────────────────────────────────
-  document.getElementById('btn2Player').addEventListener('click', () => startGame(false));
-  document.getElementById('btnVsCPU').addEventListener('click', () => startGame(true));
+  let pendingAI = false;
+
+  function showTerrainSelect(ai) {
+    pendingAI = ai;
+    document.getElementById('menuScreen').classList.add('hidden');
+    document.getElementById('terrainScreen').classList.remove('hidden');
+    gameState = 'terrainSelect';
+  }
+
+  document.getElementById('btn2Player').addEventListener('click', () => showTerrainSelect(false));
+  document.getElementById('btnVsCPU').addEventListener('click', () => showTerrainSelect(true));
+
+  // terrain cards
+  document.querySelectorAll('.terrain-card').forEach(card => {
+    card.addEventListener('click', () => {
+      selectedTerrain = card.dataset.terrain;
+      startGame(pendingAI);
+    });
+  });
+
   document.getElementById('btnPlayAgain').addEventListener('click', () => {
     startGame(vsAI);
   });
@@ -1486,10 +1995,131 @@
     gameState = 'menu';
   });
 
+  // ── Pause Menu ────────────────────────────────────────────
+  document.getElementById('btnPause').addEventListener('click', e => {
+    e.stopPropagation();
+    if (gameState === 'gameOver' || gameState === 'menu') return;
+    paused = true;
+    turnTimerRemaining = turnTimer;
+    clearInterval(turnTimerInterval);
+    document.getElementById('pauseMenu').classList.remove('hidden');
+  });
+
+  document.getElementById('btnResume').addEventListener('click', () => {
+    paused = false;
+    document.getElementById('pauseMenu').classList.add('hidden');
+    if (gameState === 'playerMove' || gameState === 'aiming') {
+      startTurnTimer(turnTimerRemaining);
+    }
+  });
+
+  document.getElementById('btnRestart').addEventListener('click', () => {
+    paused = false;
+    document.getElementById('pauseMenu').classList.add('hidden');
+    startGame(vsAI);
+  });
+
+  document.getElementById('btnQuitToMenu').addEventListener('click', () => {
+    paused = false;
+    clearInterval(turnTimerInterval);
+    document.getElementById('pauseMenu').classList.add('hidden');
+    document.getElementById('gameHUD').classList.add('hidden');
+    document.getElementById('menuScreen').classList.remove('hidden');
+    gameState = 'menu';
+  });
+
   // prevent default touch behaviors
   document.addEventListener('touchmove', e => {
     if (e.target === canvas) e.preventDefault();
   }, { passive: false });
+
+  // ── External Hooks (for auth, chat, community integration) ──
+
+  // Expose game state for chat context
+  function updateExposedState() {
+    window.wormsGameState = {
+      state: gameState,
+      selectedTerrain,
+      wind,
+      activeWorm: activeWorm ? { x: activeWorm.x, y: activeWorm.y, hp: activeWorm.hp, team: activeWorm.team } : null,
+      worms: worms.map(w => ({ x: w.x, y: w.y, hp: w.hp, team: w.team, alive: w.alive, name: w.name })),
+      weaponAmmo: weaponAmmo[currentTeam] || {},
+      currentTeam,
+      vsAI
+    };
+  }
+
+  // updateExposedState is called from the game loop (see gameLoop modification below)
+
+  // Load terrain from config (heights array + theme + modifications)
+  function loadTerrainFromConfig(config) {
+    if (!config || !config.heights || !terrainData) return;
+
+    // Apply heights
+    terrainData.fill(0);
+    for (let x = 0; x < WORLD_W; x++) {
+      const topY = config.heights[x] || 440;
+      for (let y = Math.max(0, Math.floor(topY)); y < WATER_Y; y++) {
+        if (y < WORLD_H) terrainData[y * WORLD_W + x] = 1;
+      }
+    }
+
+    // Apply modifications (carved areas, added platforms, etc.)
+    for (const mod of (config.modifications || [])) {
+      if (mod.type === 'circle') {
+        const r2 = mod.r * mod.r;
+        for (let y = Math.max(0, mod.y - mod.r); y <= Math.min(WORLD_H - 1, mod.y + mod.r); y++) {
+          for (let x = Math.max(0, mod.x - mod.r); x <= Math.min(WORLD_W - 1, mod.x + mod.r); x++) {
+            if ((x - mod.x) ** 2 + (y - mod.y) ** 2 <= r2) {
+              terrainData[y * WORLD_W + x] = mod.fill;
+            }
+          }
+        }
+      } else if (mod.type === 'rect') {
+        for (let y = Math.max(0, Math.floor(mod.y)); y < Math.min(WORLD_H, Math.floor(mod.y + mod.h)); y++) {
+          for (let x = Math.max(0, Math.floor(mod.x)); x < Math.min(WORLD_W, Math.floor(mod.x + mod.w)); x++) {
+            terrainData[y * WORLD_W + x] = mod.fill;
+          }
+        }
+      }
+    }
+
+    // Set theme if specified
+    if (config.theme && TERRAINS[config.theme]) {
+      selectedTerrain = config.theme;
+    }
+
+    renderTerrainCanvas();
+  }
+
+  // Extract current terrain as a config
+  function getTerrainConfig() {
+    if (!terrainData) return null;
+    const heights = new Array(WORLD_W);
+    for (let x = 0; x < WORLD_W; x++) {
+      heights[x] = WATER_Y; // default to water level
+      for (let y = 0; y < WATER_Y; y++) {
+        if (terrainData[y * WORLD_W + x]) {
+          heights[x] = y;
+          break;
+        }
+      }
+    }
+    return { heights, theme: selectedTerrain, modifications: [] };
+  }
+
+  // Start game with a community terrain config
+  function startWithTerrain(config) {
+    customTerrainConfig = config;
+    selectedTerrain = config.theme || 'greenHills';
+    startGame(true); // default to vs CPU for community terrains
+  }
+
+  // Expose hooks to window
+  window.wormsLoadTerrain = loadTerrainFromConfig;
+  window.wormsGetTerrainConfig = getTerrainConfig;
+  window.wormsStartWithTerrain = startWithTerrain;
+  window.wormsGameState = {};
 
   // ── Start ──────────────────────────────────────────────────
   requestAnimationFrame(gameLoop);

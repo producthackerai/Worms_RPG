@@ -32,6 +32,47 @@
     </div>
   </div>
 
+  <!-- TERRAIN SELECT SCREEN -->
+  <div id="terrainScreen" class="screen hidden">
+    <div class="menu-content">
+      <h1 class="game-title" style="font-size:clamp(2rem,8vw,4rem);margin-bottom:0.5em;">Choose Terrain</h1>
+      <div class="terrain-grid">
+        <button class="terrain-card" data-terrain="greenHills">
+          <div class="terrain-preview">
+            <div class="tp-sky" style="background:linear-gradient(#1a0a2e,#0a3d62);"></div>
+            <div class="tp-ground" style="background:linear-gradient(#3cb332,#8b5a2b);"></div>
+            <div class="tp-water" style="background:#1e64b4;"></div>
+          </div>
+          <span class="terrain-label">Green Hills</span>
+        </button>
+        <button class="terrain-card" data-terrain="volcanicPeaks">
+          <div class="terrain-preview">
+            <div class="tp-sky" style="background:linear-gradient(#1a0505,#5c1a0a);"></div>
+            <div class="tp-ground" style="background:linear-gradient(#5a5550,#3c231e);"></div>
+            <div class="tp-water" style="background:#dc6414;"></div>
+          </div>
+          <span class="terrain-label">Volcanic Peaks</span>
+        </button>
+        <button class="terrain-card" data-terrain="frozenValleys">
+          <div class="terrain-preview">
+            <div class="tp-sky" style="background:linear-gradient(#c8d8e8,#7090a8);"></div>
+            <div class="tp-ground" style="background:linear-gradient(#dcebfa,#a0b4c8);"></div>
+            <div class="tp-water" style="background:#14505a;"></div>
+          </div>
+          <span class="terrain-label">Frozen Valleys</span>
+        </button>
+        <button class="terrain-card" data-terrain="alienFloaters">
+          <div class="terrain-preview">
+            <div class="tp-sky" style="background:linear-gradient(#050010,#1a0040);"></div>
+            <div class="tp-ground" style="background:linear-gradient(#b432dc,#501464);"></div>
+            <div class="tp-water" style="background:#32dc32;"></div>
+          </div>
+          <span class="terrain-label">Alien Floaters</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- GAME HUD -->
   <div id="gameHUD" class="hidden">
     <!-- Top bar -->
@@ -46,6 +87,7 @@
         <span id="teamName">Team 1</span>
         <span id="turnTimer"></span>
       </div>
+      <button id="btnPause" class="pause-btn">&#9776;</button>
     </div>
 
     <!-- Team health bars -->
@@ -93,6 +135,26 @@
         <span class="weapon-icon">&#9992;&#65039;</span>
         <span class="weapon-name">Airstrike</span>
       </button>
+      <button class="weapon-btn" data-weapon="dynamite">
+        <span class="weapon-icon">&#129512;</span>
+        <span class="weapon-name">Dynamite</span>
+      </button>
+      <button class="weapon-btn" data-weapon="sniper">
+        <span class="weapon-icon">&#127919;</span>
+        <span class="weapon-name">Sniper</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- PAUSE MENU -->
+  <div id="pauseMenu" class="screen hidden">
+    <div class="menu-content">
+      <h1 class="game-title" style="font-size:clamp(2rem,8vw,3.5rem);margin-bottom:0.8em;">Paused</h1>
+      <div class="menu-buttons">
+        <button id="btnResume" class="menu-btn">Resume</button>
+        <button id="btnRestart" class="menu-btn">Restart</button>
+        <button id="btnQuitToMenu" class="menu-btn">Main Menu</button>
+      </div>
     </div>
   </div>
 
@@ -139,6 +201,8 @@
         <p>&#9764;&#65039; <strong>Holy Grenade</strong> — Massive blast radius. Handle with prayer.</p>
         <p>&#127820; <strong>Banana Bomb</strong> — Splits into cluster bombs on impact.</p>
         <p>&#9992;&#65039; <strong>Airstrike</strong> — Bombs rain from above. Tap the target location.</p>
+        <p>&#129512; <strong>Dynamite</strong> — Drop at your feet for a massive explosion. Run!</p>
+        <p>&#127919; <strong>Sniper</strong> — Ultra-fast precision shot. No gravity, no wind.</p>
       </div>
       <div class="help-section">
         <h3>Tips</h3>
@@ -155,5 +219,6 @@
   </div>
 
   <script src="js/game.js"></script>
+  <script type="module" src="/src/main.js"></script>
 </body>
 </html>
