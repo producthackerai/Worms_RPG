@@ -270,6 +270,8 @@
   let aiThinking = false;
   let gameStartTime = 0;
   let customTerrainConfig = null;
+  let settlingStartTime = 0;
+  const SETTLING_TIMEOUT = 1500; // max ms to wait for settling before forcing turn advance
 
   // input
   let dragStart = null;   // {x,y} world coords
@@ -540,7 +542,7 @@
   }
 
   function updateProjectile(p, dt) {
-    p.age += dt;
+    p.age += dt * 16;  // track age in milliseconds (dt=1 ≈ 16ms frame)
     p.trail.push({ x: p.x, y: p.y });
     if (p.trail.length > 20) p.trail.shift();
 
@@ -596,10 +598,10 @@
       return;
     }
 
-    // worm collision (not own team on first 10 frames)
+    // worm collision (not own team for first ~160ms)
     for (const worm of worms) {
       if (!worm.alive) continue;
-      if (p.age < 10 && worm.team === p.team) continue;
+      if (p.age < 160 && worm.team === p.team) continue;
       if (Math.abs(p.x - worm.x) < worm.width && Math.abs(p.y - worm.y) < worm.height) {
         if (p.fuse > 0 && p.age < p.fuse) continue; // fused weapons don't hit directly
         explodeProjectile(p);
@@ -983,7 +985,7 @@
       updateWeaponUI();
       aiThinking = false;
       gameState = 'firing';
-    }, 800 + Math.random() * 600);
+    }, 400 + Math.random() * 300);
   }
 
   // ── Input Handling ─────────────────────────────────────────
@@ -1319,7 +1321,7 @@
       if (vsAI && currentTeam === 1) {
         aiTakeTurn();
       }
-    }, 1200);
+    }, 800);
   }
 
   function startTurnTimer(fromTime) {
@@ -1348,10 +1350,11 @@
       currentWormIdx[currentTeam] = (currentWormIdx[currentTeam] + 1) % teams[currentTeam].length;
       currentTeam = 1 - currentTeam;
       gameState = 'turnStart';
-      setTimeout(() => startTurn(), 300);
+      setTimeout(() => startTurn(), 200);
     } else {
       // shot was fired or physics still active — let update() loop handle settling
       gameState = 'settling';
+      settlingStartTime = Date.now();
     }
   }
 
@@ -1909,6 +1912,12 @@
       applyWormPhysics(w, dt);
     }
 
+    // stop timer as soon as weapon fires — no countdown during weapon flight
+    if (gameState === 'firing' && turnTimerInterval) {
+      clearInterval(turnTimerInterval);
+      turnTimerInterval = null;
+    }
+
     // camera follow
     if (gameState === 'firing' && projectiles.length > 0) {
       const p = projectiles[projectiles.length - 1];
@@ -1920,15 +1929,28 @@
     // state transitions
     if (gameState === 'firing' && projectiles.length === 0 && explosions.length === 0) {
       gameState = 'settling';
+      settlingStartTime = Date.now();
+      clearInterval(turnTimerInterval); // no timer during settling
     }
 
-    if (gameState === 'settling' && allSettled()) {
-      updateHUD();
-      if (!checkGameOver()) {
-        currentWormIdx[currentTeam] = (currentWormIdx[currentTeam] + 1) % teams[currentTeam].length;
-        currentTeam = 1 - currentTeam;
-        setTimeout(() => startTurn(), 500);
-        gameState = 'turnStart'; // prevent re-entry
+    if (gameState === 'settling') {
+      const settledOrTimeout = allSettled() || (Date.now() - settlingStartTime > SETTLING_TIMEOUT);
+      if (settledOrTimeout) {
+        // Force-ground any stuck worms
+        for (const w of worms) {
+          if (w.alive && !w.grounded) {
+            w.vx = 0;
+            w.vy = 0;
+            w.grounded = true;
+          }
+        }
+        updateHUD();
+        if (!checkGameOver()) {
+          currentWormIdx[currentTeam] = (currentWormIdx[currentTeam] + 1) % teams[currentTeam].length;
+          currentTeam = 1 - currentTeam;
+          setTimeout(() => startTurn(), 200);
+          gameState = 'turnStart'; // prevent re-entry
+        }
       }
     }
   }
