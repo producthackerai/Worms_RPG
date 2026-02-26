@@ -4,3 +4,7 @@ Thumbs.db
 *.swp
 *.orig
 .idea
+node_modules/
+dist/
+backend/node_modules/
+backend/.env
